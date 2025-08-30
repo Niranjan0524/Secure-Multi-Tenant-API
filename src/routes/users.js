@@ -33,6 +33,7 @@ router.put(
   updateUserProfile
 );
 
+//basically only admin have right to delete the data.
 router.delete(
   "/:id",
   authenticateJWT,
@@ -41,6 +42,5 @@ router.delete(
   deleteUserProfile
 );
 
-
-//we can also add the Redundant auth middleware before control coming till here..i.e in app.js.( ex: app.use(authenticateJWT); )
+//we can also add the Redundant auth middleware before control coming till here..i.e in app.js.( ex: app.use(authenticateJWT);)
 module.exports = router;

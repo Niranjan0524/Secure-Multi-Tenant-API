@@ -1,3 +1,4 @@
+//so basically only the admin of the particular organization can access the resources of that organization
 const tenantIsolation = (req, res, next) => {
     const userOrganizationId = req.user.organizationId; 
     const resourceOrganizationId = req.params.organizationId || req.body.organizationId; 

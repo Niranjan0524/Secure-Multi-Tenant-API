@@ -8,6 +8,12 @@ const createUser = async (req, res) => {
   }
 
   const { name, email, password, role, organizationId } = req.body;
+  const adminOrgId=req.user.organizationId;
+
+  //check if user and admin belog to same org
+  if(adminOrgId !== organizationId){
+    return res.status(401).json({ message: "You can only create users within your organization" });
+  }
 
   try {
     // Check if user already exists
@@ -18,7 +24,7 @@ const createUser = async (req, res) => {
         .json({ message: "User already exists with this email" });
     }
 
-    // Create new user (password will be hashed automatically by the pre-save middleware)
+    // Create new user..
     const newUser = new User({
       name,
       email,
