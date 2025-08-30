@@ -22,7 +22,10 @@ const registerAdmin=async(req,res)=>{
 // User registration
 const register = async (req, res) => {
     const { name, email, password, role ,organizationId } = req.body;
-
+    if(role==='admin'){
+        res.status(403).json({ message: 'Only first user can be admin ,you dont have access for this event' });
+    }
+    
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ name, email, password: hashedPassword, role: role || 'user', organizationId });

@@ -11,7 +11,7 @@ const router = express.Router();
 //first user:
 router.post("/first/user/admin", validateUserRegistration, checkIfFirstUser,  registerAdmin);
 
-// User routes (only admin or manager have access):
+// User registration (only admin or manager have access):
 router.post("/register", validateUserRegistration, register);
 
 router.post("/login", validateUserLogin, login);

@@ -1,3 +1,5 @@
+import Organization from '../models/Organization';
+
 export const generateApiKey = () => {
     return require('crypto').randomBytes(32).toString('hex');
 };
@@ -18,14 +20,14 @@ export const comparePasswords = async (password, hashedPassword) => {
     return await bcrypt.compare(password, hashedPassword);
 };
 
-
+//we need to check if the user is first user for particular organization so that he can be admin
 export const checkIfFirstUser=async(req,res,next)=>{
-   const userCount = await User.countDocuments();
-   if (userCount === 0) {
-       req.body.role = 'admin';
+   const userCount=await User.countDocuments({OrganizationID:req.body.OrganizationID})
+   if(userCount===0){
+       req.body.role='admin';
    }
    else{
-    res.status(403).json({ message: 'First user already exists ,you dont have access for this event' }); 
+    res.status(403).json({ message: 'First user already exists ,you dont have access for this event' });
    }
    next();
 }
