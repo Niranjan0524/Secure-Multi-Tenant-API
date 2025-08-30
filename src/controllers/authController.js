@@ -5,13 +5,27 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+
+const registerAdmin=async(req,res)=>{
+    const {name,email,password,organizationId}=req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ name, email, password: hashedPassword, role: 'admin', organizationId });
+        await newUser.save();
+
+        res.status(201).json({ message: 'Admin user registered successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error registering admin user', error });
+        }
+}
+
 // User registration
 const register = async (req, res) => {
-    const { name, email, password, organizationId } = req.body;
+    const { name, email, password, role ,organizationId } = req.body;
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ name, email, password: hashedPassword, organizationId });
+        const newUser = new User({ name, email, password: hashedPassword, role: role || 'user', organizationId });
         await newUser.save();
 
         res.status(201).json({ message: 'User registered successfully' });
@@ -45,5 +59,6 @@ const login = async (req, res) => {
 
 module.exports = {
     register,
-    login
+    login,
+    registerAdmin
 };

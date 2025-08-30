@@ -24,6 +24,8 @@ app.use(rateLimit({
 app.use('/health',(req,res)=>{
     res.status(200).send('API is healthy');
 })
+
+//basically only admin/manager can create users
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/organizations', organizationRoutes);

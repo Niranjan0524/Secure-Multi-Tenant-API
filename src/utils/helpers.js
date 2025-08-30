@@ -17,3 +17,15 @@ export const comparePasswords = async (password, hashedPassword) => {
     const bcrypt = require('bcrypt');
     return await bcrypt.compare(password, hashedPassword);
 };
+
+
+export const checkIfFirstUser=async(req,res,next)=>{
+   const userCount = await User.countDocuments();
+   if (userCount === 0) {
+       req.body.role = 'admin';
+   }
+   else{
+    res.status(403).json({ message: 'First user already exists ,you dont have access for this event' }); 
+   }
+   next();
+}

@@ -8,39 +8,39 @@ const {
 const { validateUserRegistration } = require("../middlewares/validation.js");
 const { authenticateJWT } = require("../middlewares/auth.js");
 const tenantIsolation = require('../middlewares/tenantIsolation.js');
-const rbac = require('../middlewares/rbac.js');
+const roleControl = require('../middlewares/rbac.js');
 
 const router = express.Router();
 
-// Create a new user
+
 router.post(
   "/",
   authenticateJWT,
-  rbac(["admin", "manager"]),
+  roleControl(["admin", "manager"]),
   validateUserRegistration,
   createUser
 );
 
-// Get user by ID
+
 router.get("/:id", authenticateJWT, tenantIsolation, getUserProfile);
 
-// Update user by ID
 router.put(
   "/:id",
   authenticateJWT,
   tenantIsolation,
-  rbac(["admin", "manager"]),
+  roleControl(["admin", "manager"]),
   validateUserRegistration,
   updateUserProfile
 );
 
-// Delete user by ID
 router.delete(
   "/:id",
   authenticateJWT,
   tenantIsolation,
-  rbac(["admin"]),
+  roleControl(["admin"]),
   deleteUserProfile
 );
 
+
+//we can also add the Redundant auth middleware before control coming till here..i.e in app.js.( ex: app.use(authenticateJWT); )
 module.exports = router;

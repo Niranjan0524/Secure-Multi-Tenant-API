@@ -1,16 +1,19 @@
 const express = require('express');
-const { register, login } = require('../controllers/authController.js');
+const { register, login,registerAdmin } = require('../controllers/authController.js');
 const {
   validateUserRegistration,
   validateUserLogin,
 } = require("../middlewares/validation.js");
 
+const checkIfFirstUser =require("../utils/helpers.js");
 const router = express.Router();
 
-// User registration route
+//first user:
+router.post("/first/user/admin", validateUserRegistration, checkIfFirstUser,  registerAdmin);
+
+// User routes (only admin or manager have access):
 router.post("/register", validateUserRegistration, register);
 
-// User login route
 router.post("/login", validateUserLogin, login);
 
 module.exports = router;

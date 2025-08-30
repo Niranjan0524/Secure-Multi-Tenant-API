@@ -1,4 +1,4 @@
-const rbac = (roles) => {
+const roleControl = (roles) => {
     return (req, res, next) => {
         const userRole = req.user.role;
 
@@ -10,4 +10,4 @@ const rbac = (roles) => {
     };
 };
 
-module.exports = rbac;
+module.exports = roleControl;
