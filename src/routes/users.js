@@ -4,6 +4,7 @@ const {
   getUserProfile,
   updateUserProfile,
   deleteUserProfile,
+  getAllUsersInOrganization: getAllUsersInOrganization
 } = require("../controllers/userController.js");
 const { validateUserRegistration } = require("../middlewares/validation.js");
 const { authenticateJWT } = require("../middlewares/auth.js");
@@ -21,8 +22,11 @@ router.post(
   createUser
 );
 
-
+//any of the user can access their profile (user,admin,manager)
 router.get("/:id", authenticateJWT, tenantIsolation, getUserProfile);
+
+//only admin can access all the userDetails of particular Org:
+router.get("/organizationUsers/:organizationId",authenticateJWT,tenantIsolation,roleControl(["admin"]),getAllUsersInOrganization);
 
 router.put(
   "/:id",

@@ -1,11 +1,11 @@
 const express = require('express');
-const { register, login,registerAdmin } = require('../controllers/authController.js');
+const { register, login, registerAdmin } = require('../controllers/authController.js');
 const {
   validateUserRegistration,
   validateUserLogin,
 } = require("../middlewares/validation.js");
 
-const checkIfFirstUser =require("../utils/helpers.js");
+const { checkIfFirstUser } = require("../utils/helpers.js");
 const router = express.Router();
 
 //first user:
