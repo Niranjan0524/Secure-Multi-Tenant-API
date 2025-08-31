@@ -4,6 +4,13 @@ const generateApiKey = () => {
     return require('crypto').randomBytes(32).toString('hex');
 };
 
+
+//to test the api key is valid format or not..
+const validateApiKeyFormat = (apiKey) => {
+    const regex = /^[a-f0-9]{32}$/; 
+    return regex.test(apiKey);
+}
+
 const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
@@ -38,6 +45,7 @@ const checkIfFirstUser = async (req, res, next) => {
 module.exports = {
     generateApiKey,
     validateEmail,
+    validateApiKeyFormat,
     hashPassword,
     comparePasswords,
     checkIfFirstUser
