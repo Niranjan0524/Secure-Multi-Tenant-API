@@ -98,12 +98,12 @@ const deleteUserProfile = async (req, res) => {
 
 //returning all the users of the particular Organization to the admin:
 const getAllUsersInOrganization=async(req,res)=>{
-  const {organiztationId}=req.body;
+  const {organizationId}=req.params;
 
-  if(!organiztationId) return res.status(400).json({message:"OrganizationId is required"});
+  if(!organizationId) return res.status(400).json({message:"OrganizationId is required"});
 
   try{
-    const users=await User.find({organizationId:organiztationId}).select("-password");
+    const users=await User.find({organizationId}).select("-password");
 
     if(!users || users.length===0){
       return res.status(404).json({message:"No users found for this organization"});

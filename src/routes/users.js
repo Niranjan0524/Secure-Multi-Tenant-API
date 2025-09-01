@@ -43,7 +43,7 @@ router.put(
 
 //basically only admin have right to delete the data.
 router.delete(
-  "/:id",
+  "/:userID",
   authenticateJWT,
   tenantIsolation,
   roleControl(["admin"]),
