@@ -15,7 +15,7 @@ const router = express.Router();
 
 
 router.post(
-  "/",
+  "/addUser",
   authenticateJWT,
   roleControl(["admin", "manager"]),
   validateUserRegistration,

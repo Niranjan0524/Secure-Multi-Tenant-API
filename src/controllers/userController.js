@@ -1,12 +1,11 @@
 const User = require('../models/User.js');
 const { validationResult } = require('express-validator');
+const bcrypt = require('bcrypt');
 
 const createUser = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+ 
 
+  console.log("inside createUser");
   const { name, email, password, role, organizationId } = req.body;
   const adminOrgId=req.user.organizationId;
 
@@ -24,11 +23,12 @@ const createUser = async (req, res) => {
         .json({ message: "User already exists with this email" });
     }
 
+    const hashedPassword=bcrypt.hashSync(password,10);
     // Create new user..
     const newUser = new User({
       name,
       email,
-      password,
+      password:hashedPassword,
       role: role || "user",
       organizationId,
     });
