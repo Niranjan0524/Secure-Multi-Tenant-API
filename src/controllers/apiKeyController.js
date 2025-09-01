@@ -12,7 +12,7 @@ const createApiKey=async(req,res)=>{
     return res.status(400).json({errors:errors.array()});
   }
 
-  const {name,permissions}=req.body;
+  const {name}=req.body;
   const organizationId=req.body.organizationId;
   const createdBy=req.user.userId;
   
@@ -32,7 +32,6 @@ await newApiKey.save();
     message:"API key created successfully",
     apiKey: newApiKey
   });
-  
 }
 
 
