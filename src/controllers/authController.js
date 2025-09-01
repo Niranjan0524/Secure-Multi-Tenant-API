@@ -2,12 +2,31 @@ const User = require('../models/User.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const Organization =require("../models/Organization.js");
 
 dotenv.config();
 
 
-const registerAdmin=async(req,res)=>{
-    const {name,email,password,organizationId}=req.body;
+const registerAdmin = async (req, res) => {
+    console.log("Register Admin called");
+    const {name,email,password}=req.body;
+    const {organizationName,organizationAddress} =req.body;
+
+    let organizationId = null;
+
+    try{
+        const organization = new Organization({
+            name: organizationName,
+            address: organizationAddress
+        });
+
+        await organization.save();
+
+        organizationId = organization._id;
+    } catch (error) {
+        return res.status(500).json({ message: 'Error creating organization', error });
+    }
+
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ name, email, password: hashedPassword, role: 'admin', organizationId });

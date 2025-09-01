@@ -30,12 +30,16 @@ const comparePasswords = async (password, hashedPassword) => {
 //we need to check if the user is first user for particular organization so that he can be admin
 const checkIfFirstUser = async (req, res, next) => {
     try {
-        const userCount = await User.countDocuments({ organizationId: req.body.organizationId });
+        console.log("Check if first user middleware called");
+        const userCount = await User.countDocuments({ email: req.body.email });
         if (userCount === 0) {
+            console.log("first user");
             req.body.role = 'admin';
             next();
         } else {
+            console.log("not first user");
             return res.status(403).json({ message: 'First user already exists, you dont have access for this event' });
+
         }
     } catch (error) {
         return res.status(500).json({ message: 'Error checking user count', error: error.message });
