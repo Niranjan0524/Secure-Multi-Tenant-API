@@ -23,10 +23,14 @@ router.post(
 );
 
 //any of the user can access their profile (user,admin,manager)
-router.get("/:id", authenticateJWT, tenantIsolation, getUserProfile);
+router.get(
+  "/:userId",
+  authenticateJWT,
+  getUserProfile
+);
 
 //only admin can access all the userDetails of particular Org:
-router.get("/organizationUsers/:organizationId",authenticateJWT,tenantIsolation,roleControl(["admin"]),getAllUsersInOrganization);
+router.get("/organizationUsers/:organizationId",authenticateJWT,roleControl(["admin"]),getAllUsersInOrganization);
 
 router.put(
   "/:id",

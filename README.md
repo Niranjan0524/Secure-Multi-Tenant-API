@@ -80,6 +80,7 @@ Authorization: Bearer <your_jwt_token>
 
 ## Authentication Endpoints
 
+### (Optional)
 ### Register First Admin
 ```http
 POST /api/auth/first/user/admin
