@@ -86,12 +86,14 @@ POST /api/auth/first/user/admin
 Content-Type: application/json
 
 {
-  "name": "Admin User",
-  "email": "admin@company.com",
+  "name": "Ramesh User",
+  "email": "ramesh@company.com",
   "password": "securePassword123",
-  "organizationId": "60d5ecb74d8a2c001f647b8a"
+  "organizationName":"Torant",
+  "organizationiAddress":"Banglore,India"
 }
 ```
+#### This will first create a Organization and then first user will be the admin..(In this case ramesh is admin for torant company)
 
 ### Register User (Admin/Manager only)
 ```http
@@ -135,7 +137,7 @@ Content-Type: application/json
 
 ### Create User (Admin/Manager only)
 ```http
-POST /api/users
+POST /api/users/addUser
 Authorization: Bearer <admin_or_manager_token>
 Content-Type: application/json
 
