@@ -84,8 +84,9 @@ const updateUserProfile = async (req, res) => {
 };
 
 const deleteUserProfile = async (req, res) => {
+  const userID=req.params.userID;
     try {
-        const user = await User.findByIdAndDelete(req.user.userId);
+        const user = await User.findByIdAndDelete(userID);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
