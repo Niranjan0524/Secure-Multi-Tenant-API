@@ -53,11 +53,11 @@ router.put(
   rotateApiKey
 );
 
-// Revoke API key (admin/manager only)
+// Revoke API key (admin)
 router.delete(
   "/:keyId",
   authenticateJWT,
-  roleControl(["admin", "manager"]),
+  roleControl(["admin"]),
   revokeApiKey
 );
 

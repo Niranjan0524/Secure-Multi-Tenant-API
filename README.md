@@ -9,6 +9,8 @@ This project is a secure multi-tenant API built with Express.js, designed to sup
 - Tenant isolation to ensure data privacy between organizations
 - First user becomes admin automatically for each organization
 - Input validation and security measures
+- API key management (create, list, rotate, revoke)
+- External API authentication via API keys
 
 ## Setup Instructions
 
@@ -62,7 +64,6 @@ RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX=100
 ```
 
-
 ## API Usage Guide
 
 ### Base URL
@@ -80,7 +81,6 @@ Authorization: Bearer <your_jwt_token>
 
 ## Authentication Endpoints
 
-### (Optional)
 ### Register First Admin
 ```http
 POST /api/auth/first/user/admin
@@ -91,10 +91,10 @@ Content-Type: application/json
   "email": "ramesh@company.com",
   "password": "securePassword123",
   "organizationName":"Torant",
-  "organizationiAddress":"Banglore,India"
+  "organizationAddress":"Banglore,India"
 }
 ```
-#### This will first create a Organization and then first user will be the admin..(In this case ramesh is admin for torant company)
+Creates an organization and sets the first user as admin.
 
 ### Register User (Admin/Manager only)
 ```http
@@ -121,7 +121,6 @@ Content-Type: application/json
   "password": "securePassword123"
 }
 ```
-
 **Response:**
 ```json
 {
@@ -229,6 +228,48 @@ Authorization: Bearer <admin_token>
 
 ---
 
+## API Key Management Endpoints
+
+### Create API Key (Admin/Manager only)
+```http
+POST /api/apikeys/createAPIKey
+Authorization: Bearer <admin_or_manager_token>
+Content-Type: application/json
+
+{
+  "name": "Production Key",
+  "permissions": ["read", "write"],
+  "organizationId": "60f7c2b8e1d2c81234567890"
+}
+```
+Creates a new API key for the organization.  
+- `name`: Required, 3-50 characters.
+- `permissions`: Optional, array of `"read"`, `"write"`, `"admin"`.
+- `organizationId`: Required.
+
+### List Organization's API Keys (Admin/Manager only)
+```http
+GET /api/apikeys/getAllAPIKeys
+Authorization: Bearer <admin_or_manager_token>
+```
+Returns all active API keys for the organization (shows only a preview of the key).
+
+### Rotate API Key (Admin/Manager only)
+```http
+PUT /api/apikeys/:keyId/rotate
+Authorization: Bearer <admin_or_manager_token>
+```
+Replaces the specified API key with a new one.
+
+### Revoke API Key (Admin only)
+```http
+DELETE /api/apikeys/:keyId
+Authorization: Bearer <admin_token>
+```
+Revokes (disables) the specified API key.
+
+---
+
 ## System Endpoints
 
 ### Health Check
@@ -250,6 +291,10 @@ GET /health
 | Create Organization | true | false | false |
 | Update Organization | true | true | false |
 | Delete Organization | true | false | false |
+| Create API Key | true | true | false |
+| List API Keys | true | true | false |
+| Rotate API Key | true | true | false |
+| Revoke API Key | true | false | false |
 
 ---
 
@@ -270,5 +315,4 @@ All errors return JSON in this format:
 - `401`: Unauthorized
 - `403`: Forbidden
 - `404`: Not Found
-- `429`: Too Many Requests
-- `500`: Server Error
+- `429`:
