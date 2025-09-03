@@ -4,22 +4,20 @@ const {generateApiKey}=require("../utils/helpers.js");
 
 
 //To create new api key:
-
 const createApiKey=async(req,res)=>{
 
-
-  const {name}=req.body;
-  const organizationId=req.body.organizationId;
+  const {name,permissions,organizationId}=req.body;
+  
   const createdBy=req.user.userId;
   
+const apiKey = generateApiKey(organizationId);
 
-const apiKey=generateApiKey(organizationId);
-
-const newApiKey=new ApiKey({
+const newApiKey = new ApiKey({
   name,
-  key:apiKey,
+  key: apiKey,
   organizationId,
-  createdBy,  
+  permissions,
+  createdBy
 });
 
 await newApiKey.save();
