@@ -35,7 +35,7 @@ const validateApiKeyCreation = [
 
 // Create new API key (admin/manager only)
 router.post(
-  "/",
+  "/createAPIKey",
   authenticateJWT,
   roleControl(["admin", "manager"]),
   validateApiKeyCreation,

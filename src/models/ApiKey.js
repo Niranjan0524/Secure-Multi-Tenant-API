@@ -11,6 +11,11 @@ const apiKeySchema = new mongoose.Schema({
         ref: 'Organization',
         required: true,
     },
+    createdBy:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

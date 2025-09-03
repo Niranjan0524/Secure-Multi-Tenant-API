@@ -1,16 +1,12 @@
 const ApiKey=require("../models/ApiKey.js");
-const {generateApiKey,validateApiKeyFormat}=require("../utils/helpers.js");
-const {validationResult} =require('express-validator');
+const {generateApiKey}=require("../utils/helpers.js");
+
 
 
 //To create new api key:
 
 const createApiKey=async(req,res)=>{
-  const errors=validationResult(req);
 
-  if(errors.isEmpty()===false){
-    return res.status(400).json({errors:errors.array()});
-  }
 
   const {name}=req.body;
   const organizationId=req.body.organizationId;
@@ -44,7 +40,7 @@ const getApiKeys = async (req, res) => {
       organizationId,
       isActive: true,
     })
-      .select("-key") // Don't return the actual key for security
+      .select("-key") // will not return the actual key for the security issues
       .populate("createdBy", "name email")
       .sort({ createdAt: -1 });
 
