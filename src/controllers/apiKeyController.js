@@ -38,7 +38,6 @@ const getApiKeys = async (req, res) => {
       organizationId,
       isActive: true,
     })
-      .select("-key") // will not return the actual key for the security issues
       .populate("createdBy", "name email")
       .sort({ createdAt: -1 });
 
@@ -51,7 +50,7 @@ const getApiKeys = async (req, res) => {
         createdBy: key.createdBy,
         createdAt: key.createdAt,
         expiresAt: key.expiresAt,
-        keyPreview: `${key.key.substring(0, 12)}...`, // Show only first 12 chars
+        key: key.key.substring(0, 12) + "...", //showing only limited chars for security issues
       })),
     });
   } catch (error) {

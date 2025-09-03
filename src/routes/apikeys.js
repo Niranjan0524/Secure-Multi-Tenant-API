@@ -43,7 +43,7 @@ router.post(
 );
 
 // List organization's API keys (admin/manager only)
-router.get("/", authenticateJWT, roleControl(["admin", "manager"]), getApiKeys);
+router.get("/getAllAPIKeys", authenticateJWT, roleControl(["admin", "manager"]), getApiKeys);
 
 // Rotate API key (admin/manager only)
 router.put(
