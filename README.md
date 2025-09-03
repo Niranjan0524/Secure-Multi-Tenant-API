@@ -315,4 +315,5 @@ All errors return JSON in this format:
 - `401`: Unauthorized
 - `403`: Forbidden
 - `404`: Not Found
-- `429`:
+- `429`: Too Many Requests
+- `500`: Server Error
