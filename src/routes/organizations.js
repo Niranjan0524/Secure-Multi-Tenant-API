@@ -12,19 +12,21 @@ const rbac = require('../middlewares/rbac.js');
 
 const router = express.Router();
 
-// Create a new organization
-router.post("/", authenticateJWT, rbac(["admin"]), createOrganization);
+// Create a new organization (currently not to use)
+router.post("/createOrganization", authenticateJWT, rbac(["admin"]), createOrganization);
 
-// Get all organizations for the authenticated user's tenant
-router.get("/", authenticateJWT, tenantIsolation, getAllOrganizations);
-
-// Get a specific organization by ID
-router.get('/:id', authenticateJWT, tenantIsolation, getOrganization);
+router.get(
+  "/details/:organizationId",
+  authenticateJWT,
+  rbac(["admin"]),
+  tenantIsolation,
+  getOrganization
+);
 
 // Update an organization
-router.put('/:id', authenticateJWT, rbac(['admin', 'manager']), updateOrganization);
+router.put('/updateOrganization/:organizationId', authenticateJWT, rbac(['admin', 'manager']), updateOrganization);
 
 // Delete an organization
-router.delete('/:id', authenticateJWT, rbac(['admin']), deleteOrganization);
+router.delete('/deleteOrganization/:organizationId', authenticateJWT, rbac(['admin']), deleteOrganization);
 
 module.exports = router;

@@ -16,6 +16,7 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+//basically each ip can make up to 100 requests every 15 minutes
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000, 
     max: 100 
