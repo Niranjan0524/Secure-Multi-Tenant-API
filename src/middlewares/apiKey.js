@@ -2,6 +2,7 @@ const ApiKey=require("../models/ApiKey.js");
 const {validateApiKeyFormat} =require("../utils/helpers.js");
 
 const authenticateApiKey = async (req, res, next) => {
+
   // we can get api key from different sources so..
   const apiKey =
     req.header("X-API-Key") ||
@@ -56,6 +57,13 @@ const authenticateApiKey = async (req, res, next) => {
       lastUsedAt: new Date(),
     }).exec();
 
+    //checking if user's org and api key's org are same or not
+    if (req.user.organizationId.toString() !== keyRecord.organizationId._id.toString()) {
+      return res.status(403).json({
+        message: "User does not belong to the same organization as the API key.",
+      });
+    }
+
     // Attach API key info to request
     req.apiKey = {
       id: keyRecord._id,
@@ -66,7 +74,7 @@ const authenticateApiKey = async (req, res, next) => {
       createdBy: keyRecord.createdBy,
     };
 
-    // For compatibility with existing middleware, also set req.user
+    // Also attach user info for downstream use
     req.user = {
       userId: keyRecord.createdBy._id,
       organizationId: keyRecord.organizationId._id,

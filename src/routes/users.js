@@ -6,6 +6,7 @@ const {
   deleteUserProfile,
   getAllUsersInOrganization: getAllUsersInOrganization
 } = require("../controllers/userController.js");
+const {authenticateApiKey} = require("../middlewares/apiKey.js");
 const { validateUserRegistration } = require("../middlewares/validation.js");
 const { authenticateJWT } = require("../middlewares/auth.js");
 const tenantIsolation = require('../middlewares/tenantIsolation.js');
@@ -17,7 +18,7 @@ const router = express.Router();
 router.post(
   "/addUser",
   authenticateJWT,
-  roleControl(["admin", "manager"]),
+  authenticateApiKey,  roleControl(["admin", "manager"]),
   validateUserRegistration,
   createUser
 );
@@ -26,15 +27,17 @@ router.post(
 router.get(
   "/:userId",
   authenticateJWT,
+  authenticateApiKey,
   getUserProfile
 );
 
 //only admin can access all the userDetails of particular Org:
-router.get("/organizationUsers/:organizationId",authenticateJWT,roleControl(["admin"]),getAllUsersInOrganization);
+router.get("/organizationUsers/:organizationId",authenticateJWT,authenticateApiKey,roleControl(["admin"]),getAllUsersInOrganization);
 
 router.put(
   "/:id",
   authenticateJWT,
+  authenticateApiKey,
   tenantIsolation,
   roleControl(["admin", "manager"]),
   validateUserRegistration,
@@ -45,6 +48,7 @@ router.put(
 router.delete(
   "/:userID",
   authenticateJWT,
+  authenticateApiKey,
   tenantIsolation,
   roleControl(["admin"]),
   deleteUserProfile

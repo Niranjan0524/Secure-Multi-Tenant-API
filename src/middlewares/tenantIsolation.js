@@ -2,8 +2,8 @@ const User = require("../models/User");
 
 const tenantIsolation = async (req, res, next) => {
   const userOrganizationId = req.user.organizationId;
-  let resourceOrganizationId=null;
-
+  let resourceOrganizationId = req.apiKey ? req.apiKey.organizationId.toString() : null;
+  
   // Check if organizationId is provided in the request parameters
   if (req.params.organizationId || req.body.organizationId) {
     resourceOrganizationId = req.params.organizationId || req.body.organizationId;

@@ -5,6 +5,7 @@ const {
   rotateApiKey,
   revokeApiKey,
 } = require("../controllers/apiKeyController");
+const {authenticateApiKey} = require("../middlewares/apiKey");
 const { authenticateJWT } = require("../middlewares/auth");
 const roleControl = require("../middlewares/rbac");
 const { body } = require("express-validator");
@@ -43,12 +44,13 @@ router.post(
 );
 
 // List organization's API keys (admin/manager only)
-router.get("/getAllAPIKeys", authenticateJWT, roleControl(["admin", "manager"]), getApiKeys);
+router.get("/getAllAPIKeys", authenticateJWT, authenticateApiKey, roleControl(["admin", "manager"]), getApiKeys);
 
 // Rotate API key (admin/manager only)
 router.put(
   "/:keyId/rotate",
   authenticateJWT,
+  authenticateApiKey,
   roleControl(["admin", "manager"]),
   rotateApiKey
 );
@@ -57,6 +59,7 @@ router.put(
 router.delete(
   "/:keyId",
   authenticateJWT,
+  authenticateApiKey,
   roleControl(["admin"]),
   revokeApiKey
 );
