@@ -3,13 +3,11 @@ const Organization = require('../models/Organization.js');
 // Create a new organization
 const createOrganization = async (req, res) => {
     const { name, address } = req.body;
-    const organizationId = req.user.organizationId;
 
     try {
         const newOrganization = new Organization({
             name,
-            address,
-            organizationId
+            address
         });
 
         await newOrganization.save();
