@@ -5,8 +5,7 @@ const authenticateApiKey = async (req, res, next) => {
 
   // we can get api key from different sources so..
   const apiKey =
-    req.header("X-API-Key") ||
-    req.header("Authorization")?.replace("Bearer ", "") ||
+    req.header('X-API-Key') ||
     req.query.api_key;
 
   if (!apiKey) {
@@ -17,12 +16,13 @@ const authenticateApiKey = async (req, res, next) => {
   }
 
   // Validate API key format
+  console.log("API Key from request:", apiKey);
   if (!validateApiKeyFormat(apiKey)) {
     return res.status(401).json({
       message: "Invalid API key format.",
     });
   }
-
+console.log("API Key format validated");
   try {
     //validating api key
     const keyRecord = await ApiKey.findOne({
@@ -32,6 +32,7 @@ const authenticateApiKey = async (req, res, next) => {
       .populate("organizationId", "name isActive")
       .populate("createdBy", "name email");
 
+      console.log("API Key record found:", keyRecord);
     if (!keyRecord) {
       return res.status(401).json({
         message: "Invalid or revoked API key.",
@@ -46,7 +47,7 @@ const authenticateApiKey = async (req, res, next) => {
     }
 
     // Checking if organization is active
-    if (!keyRecord.organizationId.isActive) {
+    if (!keyRecord.isActive) {
       return res.status(403).json({
         message: "Organization is inactive.",
       });
@@ -78,7 +79,7 @@ const authenticateApiKey = async (req, res, next) => {
     req.user = {
       userId: keyRecord.createdBy._id,
       organizationId: keyRecord.organizationId._id,
-      role: "api_key", // Special role for API key requests
+      role: "admin", 
       isApiKey: true,
     };
 

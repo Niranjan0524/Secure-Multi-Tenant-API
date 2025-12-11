@@ -10,15 +10,15 @@ const createApiKey=async(req,res)=>{
   
   const createdBy=req.user.userId;
   
-const apiKey = generateApiKey(organizationId);
+  const apiKey = generateApiKey(organizationId);
 
-const newApiKey = new ApiKey({
-  name,
-  key: apiKey,
-  organizationId,
-  permissions,
-  createdBy
-});
+  const newApiKey = new ApiKey({
+    name,
+    key: apiKey,
+    organizationId,
+    permissions,
+    createdBy
+  });
 
 await newApiKey.save();
 

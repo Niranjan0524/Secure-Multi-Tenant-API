@@ -7,7 +7,7 @@ const generateApiKey = () => {
 
 //to test the api key is valid format or not..
 const validateApiKeyFormat = (apiKey) => {
-    const regex = /^[a-f0-9]{32}$/; 
+    const regex = /^[a-f0-9]{64}$/; 
     return regex.test(apiKey);
 }
 

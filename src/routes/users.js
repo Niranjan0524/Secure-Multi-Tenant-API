@@ -18,7 +18,7 @@ const router = express.Router();
 router.post(
   "/addUser",
   authenticateJWT,
-  authenticateApiKey,  roleControl(["admin", "manager"]),
+    roleControl(["admin", "manager"]),
   validateUserRegistration,
   createUser
 );
@@ -27,7 +27,6 @@ router.post(
 router.get(
   "/:userId",
   authenticateJWT,
-  authenticateApiKey,
   getUserProfile
 );
 
@@ -37,7 +36,6 @@ router.get("/organizationUsers/:organizationId",authenticateJWT,authenticateApiK
 router.put(
   "/:id",
   authenticateJWT,
-  authenticateApiKey,
   tenantIsolation,
   roleControl(["admin", "manager"]),
   validateUserRegistration,
@@ -48,7 +46,6 @@ router.put(
 router.delete(
   "/:userID",
   authenticateJWT,
-  authenticateApiKey,
   tenantIsolation,
   roleControl(["admin"]),
   deleteUserProfile
