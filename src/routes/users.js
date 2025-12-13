@@ -7,7 +7,10 @@ const {
   getAllUsersInOrganization: getAllUsersInOrganization
 } = require("../controllers/userController.js");
 const {authenticateApiKey} = require("../middlewares/apiKey.js");
-const { validateUserRegistration } = require("../middlewares/validation.js");
+const {
+  validateUserRegistration,
+  validateUpdation,
+} = require("../middlewares/validation.js");
 const { authenticateJWT } = require("../middlewares/auth.js");
 const tenantIsolation = require('../middlewares/tenantIsolation.js');
 const roleControl = require('../middlewares/rbac.js');
@@ -34,11 +37,11 @@ router.get(
 router.get("/organizationUsers/:organizationId",authenticateJWT,authenticateApiKey,roleControl(["admin"]),getAllUsersInOrganization);
 
 router.put(
-  "/:id",
+  "/:userId",
   authenticateJWT,
   tenantIsolation,
   roleControl(["admin", "manager"]),
-  validateUserRegistration,
+  validateUpdation,
   updateUserProfile
 );
 

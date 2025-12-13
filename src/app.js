@@ -30,7 +30,7 @@ app.use('/health',(req,res)=>{
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/organizations', organizationRoutes);
-app.use("/api/api-keys", apiKeyRoutes);
+app.use("/api/apikeys", apiKeyRoutes);
 
 mongoose.connect(process.env.DB_URI, {
     useNewUrlParser: true,

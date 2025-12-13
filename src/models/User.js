@@ -1,37 +1,43 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
     },
     password: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     role: {
-        type: String,
-        enum: ['user', 'manager', 'admin'],
-        default: 'user',
+      type: String,
+      enum: ["user", "manager", "admin"],
+      default: "user",
     },
     organizationId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'Organization',
+      type: mongoose.Schema.Types.ObjectId,
+      required: function () {
+        // Only required if user is not creating first org
+        return this.role !== "admin" || this.isNew === false;
+      },
+      ref: "Organization",
     },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-userSchema.methods.comparePassword = async function(candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.comparePassword =  function(candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

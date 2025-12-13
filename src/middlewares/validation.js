@@ -7,6 +7,11 @@ const validateUserRegistration = [
     body('organizationId').notEmpty().withMessage('Organization ID is required'),
 ];
 
+const validateUpdation = [
+    body('name').notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
+];
+
 const validateUserLogin = [
     body('email').isEmail().withMessage('Valid email is required'),
     body('password').notEmpty().withMessage('Password is required'),
@@ -25,8 +30,9 @@ const validateRequest = (req, res, next) => {
 };
 
 module.exports = {
-    validateUserRegistration,
-    validateUserLogin,
-    validateApiKeyCreation,
-    validateRequest,
+  validateUserRegistration,
+  validateUserLogin,
+  validateApiKeyCreation,
+  validateRequest,
+  validateUpdation,
 };

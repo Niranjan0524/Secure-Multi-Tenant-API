@@ -64,12 +64,12 @@ const updateUserProfile = async (req, res) => {
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-
+    const {userId} = req.params;
     const { name, email } = req.body;
 
     try {
         const user = await User.findByIdAndUpdate(
-            req.user.userId,
+            userId,
             { name, email },
             { new: true, runValidators: true }
         ).select('-password');
@@ -77,9 +77,12 @@ const updateUserProfile = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json(user);
+        return res.status(200).json({
+          message: "User updated successfully",
+          user: user,
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        return res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -92,7 +95,7 @@ const deleteUserProfile = async (req, res) => {
         }
         res.json({ message: 'User deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        return res.status(500).json({ message: 'Server error' });
     }
 };
 

@@ -9,9 +9,16 @@ dotenv.config();
 
 const registerAdmin = async (req, res) => {
     console.log("Register Admin called");
-    const {name,email,password ,organizationId}=req.body;
+    const { name, email, password, organizationName, organizationAddress } =
+      req.body;
 
     try {
+        const organization = new Organization({
+            name: organizationName,
+            address: organizationAddress
+        });
+        await organization.save();
+        const organizationId = organization._id;
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ name, email, password: hashedPassword, role: 'admin', organizationId });
         await newUser.save();

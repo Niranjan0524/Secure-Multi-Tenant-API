@@ -1,0 +1,1460 @@
+{
+  "info": {
+    "name": "Secure Multi-Tenant API - Complete Testing Suite",
+    "description": "Comprehensive API testing collection for Secure Blink Multi-Tenant API. Follow the folders in order for proper testing flow.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{ADMIN_TOKEN}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "0. Setup & Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"API is healthy\", function () {",
+                  "    pm.expect(pm.response.text()).to.include(\"healthy\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/health",
+              "host": ["{{BASE_URL}}"],
+              "path": ["health"]
+            },
+            "description": "Verify the API server is running and responsive."
+          },
+          "response": []
+        }
+      ],
+      "description": "Initial setup and health verification"
+    },
+    {
+      "name": "1. Bootstrap - First Org & Admin",
+      "item": [
+        {
+          "name": "Create First Organization & Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has token\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.environment.set(\"ADMIN_TOKEN\", jsonData.token);",
+                  "});",
+                  "",
+                  "pm.test(\"User is admin\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.role).to.eql('admin');",
+                  "    pm.environment.set(\"ADMIN_ID\", jsonData.user.id);",
+                  "    pm.environment.set(\"ORG_ID\", jsonData.user.organizationId);",
+                  "});",
+                  "",
+                  "console.log(\"✅ SAVE THESE VALUES:\");",
+                  "console.log(\"ADMIN_TOKEN:\", pm.environment.get(\"ADMIN_TOKEN\"));",
+                  "console.log(\"ADMIN_ID:\", pm.environment.get(\"ADMIN_ID\"));",
+                  "console.log(\"ORG_ID:\", pm.environment.get(\"ORG_ID\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Admin\",\n  \"email\": \"john@acmecorp.com\",\n  \"password\": \"SecurePass123!\",\n  \"organizationName\": \"Acme Corporation\",\n  \"organizationAddress\": \"123 Business St, San Francisco, CA 94102\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/first/user/admin",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "first", "user", "admin"]
+            },
+            "description": "Creates the first organization and assigns the first user as admin. This bootstraps the entire system."
+          },
+          "response": []
+        }
+      ],
+      "description": "Bootstrap the system with first organization and admin user"
+    },
+    {
+      "name": "2. Authentication",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Token received\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.environment.set(\"ADMIN_TOKEN\", jsonData.token);",
+                  "});",
+                  "",
+                  "pm.test(\"Role is admin\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.role).to.eql('admin');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@acmecorp.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with admin credentials to get JWT token"
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"MANAGER_TOKEN\", jsonData.token);",
+                  "",
+                  "console.log(\"MANAGER_TOKEN:\", pm.environment.get(\"MANAGER_TOKEN\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sarah@acmecorp.com\",\n  \"password\": \"ManagerPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login as manager (run after creating manager user)"
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Regular User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"USER_TOKEN\", jsonData.token);",
+                  "",
+                  "console.log(\"USER_TOKEN:\", pm.environment.get(\"USER_TOKEN\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bob@acmecorp.com\",\n  \"password\": \"UserPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login as regular user (run after creating user)"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Invalid Login (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message present\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@acmecorp.com\",\n  \"password\": \"WrongPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Test invalid credentials - should return 401"
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints for different user roles"
+    },
+    {
+      "name": "3. User Management",
+      "item": [
+        {
+          "name": "✅ Admin: Create Manager User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Manager created\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.role).to.eql('manager');",
+                  "    pm.environment.set(\"MANAGER_ID\", jsonData.user.id);",
+                  "});",
+                  "",
+                  "console.log(\"MANAGER_ID:\", pm.environment.get(\"MANAGER_ID\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sarah Manager\",\n  \"email\": \"sarah@acmecorp.com\",\n  \"password\": \"ManagerPass123!\",\n  \"role\": \"manager\",\n  \"organizationId\": \"{{ORG_ID}}\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/addUser",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "addUser"]
+            },
+            "description": "Admin creates a manager user"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Manager: Create Regular User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"User created\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.role).to.eql('user');",
+                  "    pm.environment.set(\"USER_ID\", jsonData.user.id);",
+                  "});",
+                  "",
+                  "console.log(\"USER_ID:\", pm.environment.get(\"USER_ID\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MANAGER_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bob User\",\n  \"email\": \"bob@acmecorp.com\",\n  \"password\": \"UserPass123!\",\n  \"role\": \"user\",\n  \"organizationId\": \"{{ORG_ID}}\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/addUser",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "addUser"]
+            },
+            "description": "Manager creates a regular user (testing manager permissions)"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Regular User: Try Create User (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Forbidden message\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{USER_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Unauthorized User\",\n  \"email\": \"unauthorized@acmecorp.com\",\n  \"password\": \"Pass123!\",\n  \"role\": \"user\",\n  \"organizationId\": \"{{ORG_ID}}\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/addUser",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "addUser"]
+            },
+            "description": "Regular user attempts to create user - should fail with 403"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Get Own User Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"User data returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "    pm.expect(jsonData).to.have.property('email');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{USER_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/{{USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "{{USER_ID}}"]
+            },
+            "description": "Users can view their own profile"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Admin: Get All Organization Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Users array returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.users).to.be.an('array');",
+                  "    pm.expect(jsonData.users.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/organizationUsers/{{ORG_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "organizationUsers", "{{ORG_ID}}"]
+            },
+            "description": "Admin can list all users in organization"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Regular User: Get All Users (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{USER_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/organizationUsers/{{ORG_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "organizationUsers", "{{ORG_ID}}"]
+            },
+            "description": "Regular user cannot list all users - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Manager: Update User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"User updated\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.name).to.include('Updated');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MANAGER_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bob Updated User\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/{{USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "{{USER_ID}}"]
+            },
+            "description": "Manager can update user details"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Regular User: Update Other User (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{USER_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hacked Name\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/{{MANAGER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "{{MANAGER_ID}}"]
+            },
+            "description": "Regular user cannot update other users - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Manager: Try Delete User (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MANAGER_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/{{USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "{{USER_ID}}"]
+            },
+            "description": "Manager cannot delete users - only admins can"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Admin: Delete User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"User deleted\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/{{USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "{{USER_ID}}"]
+            },
+            "description": "Only admin can delete users"
+          },
+          "response": []
+        }
+      ],
+      "description": "User management and RBAC testing"
+    },
+    {
+      "name": "4. Organization Management",
+      "item": [
+        {
+          "name": "✅ Get Organization Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Organization data returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "    pm.expect(jsonData).to.have.property('address');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{USER_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/organizations/{{ORG_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "organizations", "{{ORG_ID}}"]
+            },
+            "description": "All users can view their organization"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Get All Organizations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Organizations array returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.organizations).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/organizations",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "organizations"]
+            },
+            "description": "Get list of all organizations"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Manager: Update Organization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Organization updated\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.organization.name).to.include('Updated');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MANAGER_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corporation Updated\",\n  \"address\": \"456 New Address, San Francisco, CA 94103\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/organizations/{{ORG_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "organizations", "{{ORG_ID}}"]
+            },
+            "description": "Manager can update organization details"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Regular User: Update Org (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{USER_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hacked Organization Name\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/organizations/{{ORG_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "organizations", "{{ORG_ID}}"]
+            },
+            "description": "Regular user cannot update organization - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Admin: Create New Organization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Organization created\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"SECOND_ORG_ID\", jsonData.organization._id);",
+                  "});",
+                  "",
+                  "console.log(\"SECOND_ORG_ID:\", pm.environment.get(\"SECOND_ORG_ID\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tech Innovations Inc\",\n  \"address\": \"789 Tech Blvd, Austin, TX 78701\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/organizations",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "organizations"]
+            },
+            "description": "Admin creates a new organization"
+          },
+          "response": []
+        }
+      ],
+      "description": "Organization CRUD operations and permissions"
+    },
+    {
+      "name": "5. API Key Management",
+      "item": [
+        {
+          "name": "✅ Manager: Create API Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"API key created\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.apiKey).to.have.property('key');",
+                  "    pm.environment.set(\"API_KEY_ID\", jsonData.apiKey.id);",
+                  "    pm.environment.set(\"API_KEY\", jsonData.apiKey.key);",
+                  "});",
+                  "",
+                  "console.log(\"API_KEY_ID:\", pm.environment.get(\"API_KEY_ID\"));",
+                  "console.log(\"API_KEY:\", pm.environment.get(\"API_KEY\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MANAGER_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Production API Key\",\n  \"permissions\": [\"read\", \"write\"]\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/apikeys/createAPIKey",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "apikeys", "createAPIKey"]
+            },
+            "description": "Manager creates API key with read/write permissions"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Regular User: Create API Key (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{USER_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Unauthorized Key\",\n  \"permissions\": [\"admin\"]\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/apikeys/createAPIKey",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "apikeys", "createAPIKey"]
+            },
+            "description": "Regular user cannot create API keys - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ List All API Keys",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"API keys array returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.apiKeys).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MANAGER_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/apikeys/getAllAPIKeys",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "apikeys", "getAllAPIKeys"]
+            },
+            "description": "Manager can list all API keys (keys are masked)"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Manager: Rotate API Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"New API key generated\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.apiKey).to.have.property('key');",
+                  "    var newKey = jsonData.apiKey.key;",
+                  "    var oldKey = pm.environment.get(\"API_KEY\");",
+                  "    pm.expect(newKey).to.not.equal(oldKey);",
+                  "    pm.environment.set(\"API_KEY\", newKey);",
+                  "});",
+                  "",
+                  "console.log(\"New API_KEY:\", pm.environment.get(\"API_KEY\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MANAGER_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/apikeys/{{API_KEY_ID}}/rotate",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "apikeys", "{{API_KEY_ID}}", "rotate"]
+            },
+            "description": "Manager rotates API key to generate new value"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Manager: Try Revoke API Key (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MANAGER_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/apikeys/{{API_KEY_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "apikeys", "{{API_KEY_ID}}"]
+            },
+            "description": "Manager cannot revoke API keys - only admins can"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Admin: Revoke API Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"API key revoked\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('revoked');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/apikeys/{{API_KEY_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "apikeys", "{{API_KEY_ID}}"]
+            },
+            "description": "Only admin can revoke API keys"
+          },
+          "response": []
+        }
+      ],
+      "description": "API key lifecycle management and permissions"
+    },
+    {
+      "name": "6. Tenant Isolation Tests",
+      "item": [
+        {
+          "name": "Create Second Organization Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"ADMIN2_TOKEN\", jsonData.token);",
+                  "pm.environment.set(\"ADMIN2_ID\", jsonData.user.id);",
+                  "pm.environment.set(\"ORG2_ID\", jsonData.user.organizationId);",
+                  "",
+                  "console.log(\"ADMIN2_TOKEN:\", pm.environment.get(\"ADMIN2_TOKEN\"));",
+                  "console.log(\"ORG2_ID:\", pm.environment.get(\"ORG2_ID\"));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Admin 2\",\n  \"email\": \"jane@techinnov.com\",\n  \"password\": \"SecurePass456!\",\n  \"organizationName\": \"Tech Innovations\",\n  \"organizationAddress\": \"789 Innovation Dr, Austin, TX 78701\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/first/user/admin",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "first", "user", "admin"]
+            },
+            "description": "Create second organization to test tenant isolation"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Cross-Tenant: Access Org 1 Users (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Tenant isolation enforced\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN2_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/organizationUsers/{{ORG_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "organizationUsers", "{{ORG_ID}}"]
+            },
+            "description": "Org 2 admin tries to access Org 1 users - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Cross-Tenant: Update Org 1 User (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN2_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hacked Name\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/{{ADMIN_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "{{ADMIN_ID}}"]
+            },
+            "description": "Org 2 admin tries to update Org 1 user - should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Cross-Tenant: Get Org 1 Details (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN2_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/organizations/{{ORG_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "organizations", "{{ORG_ID}}"]
+            },
+            "description": "Org 2 admin tries to view Org 1 details - should fail"
+          },
+          "response": []
+        }
+      ],
+      "description": "Verify complete tenant isolation between organizations"
+    },
+    {
+      "name": "7. Security & Validation Tests",
+      "item": [
+        {
+          "name": "❌ Missing Required Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Validation error returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ADMIN_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"incomplete@acmecorp.com\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/addUser",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "addUser"]
+            },
+            "description": "Test validation - missing required fields should fail"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer invalid_token_xyz123"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/{{ADMIN_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "{{ADMIN_ID}}"]
+            },
+            "description": "Test with invalid JWT token - should return 401"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ No Token Provided",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/users/{{ADMIN_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "users", "{{ADMIN_ID}}"]
+            },
+            "description": "Test protected endpoint without token - should fail"
+          },
+          "response": []
+        }
+      ],
+      "description": "Security and input validation tests"
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

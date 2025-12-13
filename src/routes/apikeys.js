@@ -8,6 +8,7 @@ const {
 const {authenticateApiKey} = require("../middlewares/apiKey");
 const { authenticateJWT } = require("../middlewares/auth");
 const roleControl = require("../middlewares/rbac");
+const tenantIsolation = require("../middlewares/tenantIsolation");
 const { body } = require("express-validator");
 
 const router = express.Router();
@@ -52,6 +53,7 @@ router.put(
   authenticateJWT,
   authenticateApiKey,
   roleControl(["admin", "manager"]),
+  tenantIsolation,
   rotateApiKey
 );
 
@@ -61,6 +63,7 @@ router.delete(
   authenticateJWT,
   authenticateApiKey,
   roleControl(["admin"]),
+  tenantIsolation,
   revokeApiKey
 );
 
