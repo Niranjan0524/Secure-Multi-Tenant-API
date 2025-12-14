@@ -34,6 +34,7 @@ router.get(
 );
 
 //only admin can access all the userDetails of particular Org:
+//before accessing users of org , first authenticate the apiKey and JWT both. (basically create api key before accessing this route)
 router.get("/organizationUsers/:organizationId",authenticateJWT,authenticateApiKey,roleControl(["admin"]),getAllUsersInOrganization);
 
 router.put(

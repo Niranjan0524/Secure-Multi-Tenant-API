@@ -4,19 +4,23 @@ const tenantIsolation = async (req, res, next) => {
   const userOrganizationId = req.user.organizationId;
   let resourceOrganizationId = req.apiKey ? req.apiKey.organizationId.toString() : null;
   
+  console.log("11");
   // Check if organizationId is provided in the request parameters
   if (req.params.organizationId || req.body.organizationId) {
     resourceOrganizationId = req.params.organizationId || req.body.organizationId;
-    if (userOrganizationId !== resourceOrganizationId) {
+    console.log("userOrganizationId:", userOrganizationId);
+    console.log("resourceOrganizationId:", resourceOrganizationId);
+    console.log(userOrganizationId != resourceOrganizationId);
+    if (userOrganizationId != resourceOrganizationId) {
       return res.status(403).json({
         message:
           "Access denied: You do not have permission to access this resource.",
        });
      }
-     next();
+     return next();
   }
 
-  
+  console.log("22");
 
   const userID = req.params.userId;
   //If we have a userId parameter, get the organization from the user

@@ -12,8 +12,8 @@ const rbac = require('../middlewares/rbac.js');
 
 const router = express.Router();
 
-// Create a new organization
-router.post("/createOrganization", createOrganization);
+// // Create a new organization
+// router.post("/createOrganization", createOrganization);
 
 router.get(
   "/details/:organizationId",

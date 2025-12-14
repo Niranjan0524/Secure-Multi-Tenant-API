@@ -60,31 +60,28 @@ const getUserProfile = async (req, res) => {
 
 // Update user profile
 const updateUserProfile = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    const {userId} = req.params;
-    const { name, email } = req.body;
+  const { userId } = req.params;
+  const { name, email } = req.body;
 
-    try {
-        const user = await User.findByIdAndUpdate(
-            userId,
-            { name, email },
-            { new: true, runValidators: true }
-        ).select('-password');
+  try {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { name, email },
+      { new: true, runValidators: true }
+    ).select("-password");
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        return res.status(200).json({
-          message: "User updated successfully",
-          user: user,
-        });
-    } catch (error) {
-        return res.status(500).json({ message: 'Server error' });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+    return res.status(200).json({
+      message: "User updated successfully",
+      user: user,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 const deleteUserProfile = async (req, res) => {
   const userID=req.params.userID;

@@ -68,7 +68,8 @@ const getApiKeys = async (req, res) => {
 const rotateApiKey = async (req, res) => {
     const { keyId } = req.params;
     const organizationId = req.user.organizationId;
-
+    console.log("Rotating API key for organizationId:", organizationId);  
+    console.log("keyId:", keyId);
     try {
         const existingKey = await ApiKey.findOne({ 
             _id: keyId, 
@@ -81,7 +82,10 @@ const rotateApiKey = async (req, res) => {
                 message: "API key not found or inactive"
             });
         }
-
+        
+        console.log("Rotating API key for keyId:", keyId);
+        console.log("Existing Key:", existingKey);
+        console.log("Organization ID:", organizationId);
         // Generate a new API key
         const newApiKey = generateApiKey(organizationId);
 

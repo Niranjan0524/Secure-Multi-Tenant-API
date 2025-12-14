@@ -49,7 +49,7 @@ router.get("/getAllAPIKeys", authenticateJWT, authenticateApiKey, roleControl(["
 
 // Rotate API key (admin/manager only)
 router.put(
-  "/:keyId/rotate",
+  "/rotate/:keyId",
   authenticateJWT,
   authenticateApiKey,
   roleControl(["admin", "manager"]),
